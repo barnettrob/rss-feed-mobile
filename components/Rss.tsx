@@ -9,6 +9,7 @@ import {
 import { XMLParser } from "fast-xml-parser";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode } from 'html-entities';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 class Rss extends Component {
   constructor(props: any) {
@@ -261,9 +262,9 @@ class Rss extends Component {
 const styles = StyleSheet.create({
   card: {
     borderRadius: 5,
-    borderColor: "#ccc",
+    borderColor: "#94999e",
     borderWidth: 1,
-    backgroundColor: "#fff",
+    backgroundColor: useColorScheme() === 'dark' ? "#000" : "#fff",
     margin: 15,
     padding: 20,
   },
@@ -272,9 +273,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderRadius: 3,
     padding: 3,
+    color: useColorScheme() === 'dark' ? '#fff' : '#000',
   },
   title: {
     fontSize: 18,
+    color: useColorScheme() === 'dark' ? '#fff' : '#000',
   },
   date: {
     color: "#7f7f7f",

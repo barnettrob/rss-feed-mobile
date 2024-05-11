@@ -2,6 +2,7 @@ import { StyleSheet, View, Text, Pressable } from "react-native";
 import Settings from "./Settings";
 import { Link } from 'expo-router';
 import GearIcon from "./GearIcon";
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 const Header = () => {
     return (
@@ -23,7 +24,7 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   navbar: {
-    backgroundColor: "#47aa93",
+    backgroundColor: useColorScheme() === 'dark' ? '#000' : "#47aa93",
     padding: 10,
     flexDirection: "row",
   },
