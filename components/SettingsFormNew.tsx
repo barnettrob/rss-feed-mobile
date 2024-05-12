@@ -6,6 +6,8 @@ import { useForm, Controller } from 'react-hook-form';
 const SettingsFormNew = () => {
   const { control, handleSubmit, formState: { errors } } = useForm();
   const [submittedData, setSubmittedData] = useState(null);
+  const colorScheme = useColorScheme();
+
   const onSubmit = (data: any) => {
     // Simulate form submission
     console.log('Submitted Data:', data);
@@ -34,10 +36,12 @@ const SettingsFormNew = () => {
   )
 }
 
+
+
 const styles = StyleSheet.create({
   settingsWrapper: {
     padding: 20,
-    color:  useColorScheme() === 'dark' ? '#fff' : '#000',
+    color:  '#fff',
   },
   container: {
     padding: 16,

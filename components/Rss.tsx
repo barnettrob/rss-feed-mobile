@@ -9,7 +9,7 @@ import {
 import { XMLParser } from "fast-xml-parser";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decode } from 'html-entities';
-import { useColorScheme } from '@/hooks/useColorScheme';
+//import { useColorScheme } from '@/hooks/useColorScheme';
 
 class Rss extends Component {
   constructor(props: any) {
@@ -248,7 +248,7 @@ class Rss extends Component {
           }}
           key={i}
         >
-          <View key={i} style={styles.card}>
+          <View key={i} style={styles.cardDark}>
             <Text style={styles.eyebrow}>{domain}</Text>
             <Text style={styles.title}>{decode(item.title)}</Text>
             <Text style={styles.date}>{item.pubDate}</Text>
@@ -260,11 +260,19 @@ class Rss extends Component {
 }
 
 const styles = StyleSheet.create({
-  card: {
+  cardDark: {
     borderRadius: 5,
     borderColor: "#94999e",
     borderWidth: 1,
-    backgroundColor: useColorScheme() === 'dark' ? "#000" : "#fff",
+    backgroundColor: "#000",
+    margin: 15,
+    padding: 20,
+  },
+  cardLight: {
+    borderRadius: 5,
+    borderColor: "#94999e",
+    borderWidth: 1,
+    backgroundColor: "#fff",
     margin: 15,
     padding: 20,
   },
@@ -273,11 +281,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     borderRadius: 3,
     padding: 3,
-    color: useColorScheme() === 'dark' ? '#fff' : '#000',
+    color: '#fff',//useColorScheme() === 'dark' ? '#fff' : '#000',
   },
   title: {
     fontSize: 18,
-    color: useColorScheme() === 'dark' ? '#fff' : '#000',
+    color: '#fff',//useColorScheme() === 'dark' ? '#fff' : '#000',
   },
   date: {
     color: "#7f7f7f",

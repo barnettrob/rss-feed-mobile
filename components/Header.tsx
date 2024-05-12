@@ -3,8 +3,11 @@ import Settings from "./Settings";
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 const Header = () => {
+  const theme = useColorScheme();
     return (
-        <View style={styles.navbar}>
+        <View style={[
+          theme === 'dark' ? styles.navbarDark : styles.navbarLight,
+        ]}>
           <View style={styles.containerLeft}>
             <Text style={styles.title}>News</Text>
           </View>
@@ -16,8 +19,13 @@ const Header = () => {
 }
 
 const styles = StyleSheet.create({
-  navbar: {
-    backgroundColor: useColorScheme() === 'dark' ? '#000' : "#47aa93",
+  navbarDark: {
+    backgroundColor: "#000",
+    padding: 10,
+    flexDirection: "row",
+  },
+  navbarLight: {
+    backgroundColor: "#47aa93",
     padding: 10,
     flexDirection: "row",
   },
