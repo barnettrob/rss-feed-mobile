@@ -17,19 +17,22 @@ const SettingsFormNew = () => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-      <Controller
-          control={control}
-          render={({ field }) => (
-            <TextInput
-              {...field}
-              style={styles.input}
-              placeholder="Rss Feed Url"
-            />
-          )}
-          name="feed_url"
-          rules={{ required: 'You must enter your name' }}
-        />
-        {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
+        <Text style={styles.title}>
+          Enter RSS feeds for your news:
+        </Text>
+        <Controller
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                style={styles.input}
+                placeholder="Rss Feed Url"
+              />
+            )}
+            name="feed_url"
+            rules={{ required: 'You must enter your name' }}
+          />
+          {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
 
       </View>
     </SafeAreaView>
@@ -45,6 +48,12 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 16,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 30,
+    color: "#FFF",
   },
   input: {
     height: 40,
