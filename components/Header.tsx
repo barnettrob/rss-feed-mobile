@@ -1,7 +1,5 @@
-import { StyleSheet, View, Text, Pressable } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import Settings from "./Settings";
-import { Link } from 'expo-router';
-import GearIcon from "./GearIcon";
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 const Header = () => {
@@ -11,11 +9,6 @@ const Header = () => {
             <Text style={styles.title}>News</Text>
           </View>
           <View style={styles.containerRight}>
-          <Link href="/settings" asChild>
-            <Pressable>
-                <GearIcon />
-            </Pressable>
-            </Link>
             <Settings />
           </View>
         </View>
