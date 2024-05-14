@@ -1,25 +1,31 @@
 import { useRef, useState } from "react";
-import { Pressable, Text, TextInput, SafeAreaView, StyleSheet, View } from "react-native";
+import { 
+  Button,
+  Pressable, 
+  Text, 
+  TextInput, 
+  SafeAreaView, 
+  StyleSheet, 
+  View } from "react-native";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useForm, Controller } from 'react-hook-form';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const SettingsFormNew = () => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
   const [inputNum, setInputNum] = useState([1]);
-  const [submittedData, setSubmittedData] = useState(null);
+  const [submittedData, setSubmittedData] = useState([]);
   const inputsLength = inputNum.length;
   const inputRef = useRef(new Array(inputsLength));
+  const { control, handleSubmit, formState: { errors } } = useForm();
   const theme = useColorScheme();
 
   const handleAddInput = () => {
     setInputNum(inputNum => [...inputNum, inputNum.length + 1]);
   }
 
-  const handleDeleteInput = (e: any) => {
+  const handleDeleteInput = (i: number) => {
     setInputNum(origInput => {
-      console.log("e", e)
-      return origInput.filter(input => input !== e);
+      return origInput.filter(input => input !== i);
     })
   } 
 
@@ -38,7 +44,7 @@ const SettingsFormNew = () => {
           Enter RSS feeds for your news:
         </Text>
         {inputNum.map((_, i: number) => (
-          <View key={i} style={styles.inputWrapper}>
+          <View key={i+1} style={styles.inputWrapper}>
             <Controller
               control={control}
               render={({ field }) => (
@@ -48,13 +54,15 @@ const SettingsFormNew = () => {
                     theme === 'dark' ? styles.inputDark : styles.inputLight,
                   ]}
                   placeholder="Rss Feed Url"
-                  ref={(element) => inputRef.current[i] = element}
+                  ref={(element) => inputRef.current[i+1] = element}
+                  defaultValue=""
+                  value={submittedData[i]}
                 />
               )}
-              name={`feed_url_${i}`}
+              name={`feed_url_${i+1}`}
               rules={{ required: 'You must enter a valid url' }}
             />
-            <Pressable onPress={(e) => handleDeleteInput(e)} data-inputnum={i}>
+            <Pressable onPress={() => handleDeleteInput(i+1)} data-inputnum={i+1}>
               <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
             </Pressable>
             {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
@@ -67,6 +75,10 @@ const SettingsFormNew = () => {
           theme === 'dark' ? styles.buttonTextDark : styles.buttonTextLight,
         ]}>Add RSS</Text>
         </Pressable>
+        <Button
+          title='Save Urls'
+          onPress={handleSubmit(onSubmit)}
+        />
       </View>
     </SafeAreaView>
   )
