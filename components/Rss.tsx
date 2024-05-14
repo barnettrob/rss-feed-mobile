@@ -262,7 +262,7 @@ class Rss extends Component {
 const styles = StyleSheet.create({
   cardDark: {
     borderRadius: 5,
-    borderColor: "#94999e",
+    borderColor: "#4d4d4c",
     borderWidth: 1,
     backgroundColor: "#000",
     margin: 15,

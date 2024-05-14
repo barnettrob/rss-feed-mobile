@@ -1,12 +1,27 @@
-import { useState } from "react";
-import { Text, TextInput, SafeAreaView, StyleSheet, View } from "react-native";
+import { useRef, useState } from "react";
+import { Pressable, Text, TextInput, SafeAreaView, StyleSheet, View } from "react-native";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useForm, Controller } from 'react-hook-form';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const SettingsFormNew = () => {
   const { control, handleSubmit, formState: { errors } } = useForm();
+  const [inputNum, setInputNum] = useState([1]);
   const [submittedData, setSubmittedData] = useState(null);
-  const colorScheme = useColorScheme();
+  const inputsLength = inputNum.length;
+  const inputRef = useRef(new Array(inputsLength));
+  const theme = useColorScheme();
+
+  const handleAddInput = () => {
+    setInputNum(inputNum => [...inputNum, inputNum.length + 1]);
+  }
+
+  const handleDeleteInput = (e: any) => {
+    setInputNum(origInput => {
+      console.log("e", e)
+      return origInput.filter(input => input !== e);
+    })
+  } 
 
   const onSubmit = (data: any) => {
     // Simulate form submission
@@ -17,23 +32,41 @@ const SettingsFormNew = () => {
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <Text style={styles.title}>
+        <Text style={[
+          theme === 'dark' ? styles.titleDark : styles.titleLight,
+        ]}>
           Enter RSS feeds for your news:
         </Text>
-        <Controller
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                style={styles.input}
-                placeholder="Rss Feed Url"
-              />
-            )}
-            name="feed_url"
-            rules={{ required: 'You must enter your name' }}
-          />
-          {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
-
+        {inputNum.map((_, i: number) => (
+          <View key={i} style={styles.inputWrapper}>
+            <Controller
+              control={control}
+              render={({ field }) => (
+                <TextInput
+                  {...field}
+                  style={[
+                    theme === 'dark' ? styles.inputDark : styles.inputLight,
+                  ]}
+                  placeholder="Rss Feed Url"
+                  ref={(element) => inputRef.current[i] = element}
+                />
+              )}
+              name={`feed_url_${i}`}
+              rules={{ required: 'You must enter a valid url' }}
+            />
+            <Pressable onPress={(e) => handleDeleteInput(e)} data-inputnum={i}>
+              <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
+            </Pressable>
+            {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
+          </View>
+        ))}
+        <Pressable style={[
+          theme === 'dark' ? styles.buttonDark : styles.buttonLight,
+        ]} onPress={handleAddInput}>
+          <Text style={[
+          theme === 'dark' ? styles.buttonTextDark : styles.buttonTextLight,
+        ]}>Add RSS</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   )
@@ -49,22 +82,84 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
   },
-  title: {
+  titleDark: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 30,
     color: "#FFF",
   },
-  input: {
+  titleLight: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 30,
+    color: "#000",
+  },
+  inputWrapper: {
+    flex: 1,
+    flexDirection:'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 10,
+  },
+  inputDark: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 10,
     padding: 8,
+    color: "#FFF",
+    width: '90%',
+  },
+  inputLight: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 8,
+    color: "#000",
+    width: '90%',
   },
   errorText: {
     color: 'red',
     marginBottom: 10,
+  },
+  buttonLight: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 15,
+    borderColor: '#000',
+    borderWidth: 1,
+    elevation: 3,
+    backgroundColor: 'transparent',
+  },
+  buttonDark: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 15,
+    borderColor: '#FFF',
+    borderWidth: 1,
+    elevation: 3,
+    backgroundColor: '#000',
+  },
+  buttonTextDark: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: '#FFF',
+  },
+  buttonTextLight: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: '#000',
   },
 });
 
