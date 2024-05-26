@@ -1,11 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { 
+  Button,
   Pressable, 
   Text, 
   TextInput, 
   SafeAreaView, 
   StyleSheet, 
   View } from "react-native";
+import { Formik, Field, FieldArray, Form, ErrorMessage } from 'formik';
+import * as yup from "yup";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useForm, Controller } from 'react-hook-form';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -17,8 +20,28 @@ const SettingsFormNew = () => {
   const [feedDataStorage, setFeedDataStorage] = useState({});
   const inputsLength = inputNum.length;
   const inputRef = useRef(new Array(inputsLength));
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const { control, register, handleSubmit, formState: { errors } } = useForm();
   const theme = useColorScheme();
+
+  // create a validation schema using Yup
+  const validationSchema = yup.object().shape({
+    rss: yup.string().url('Enter a valid url').required('Url is required'),
+  });
+
+  const formikInitialValues = {
+    rss: [
+      {
+        url: '',
+      },
+    ],
+  };
+  
+
+  const handleFormSubmit = (values: any) => {
+    // Handle form submission logic here
+    alert(JSON.stringify(values));
+  };
+
 
   const handleAddInput = () => {
     setInputNum(inputNum => [...inputNum, inputNum.length + 1]);
@@ -67,62 +90,7 @@ const SettingsFormNew = () => {
     })
   }, []);
 
-  let form: any = <></>
-  if (Object.keys(feedDataStorage).length > 0) {
-    form = Object.keys(feedDataStorage).map((feed: any, i: number) =>(
-      <View key={i+1} style={styles.inputWrapper}>
-        <Controller
-          control={control}
-          render={({ field }) => (
-            <TextInput
-              {...field}
-              style={[
-                theme === 'dark' ? styles.inputDark : styles.inputLight,
-              ]}
-              placeholder="Rss Feed Url"
-              ref={(element) => inputRef.current[i+1] = element}
-              defaultValue={feed[`feed_url_${i+1}`]}
-              value={feed[`feed_url_${i+1}`]}
-            />
-          )}
-          name={`feed_url_${i+1}`}
-          rules={{ required: 'You must enter a valid url' }}
-        />
-        <Pressable onPress={() => handleDeleteInput(i+1)} data-inputnum={i+1}>
-          <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
-        </Pressable>
-        {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}        
-      </View>
-    ))
-  }
-  else {
-    form = inputNum.map((_, i: number) => (
-      <View key={i+1} style={styles.inputWrapper}>
-        <Controller
-          control={control}
-          render={({ field }) => (
-            <TextInput
-              {...field}
-              style={[
-                theme === 'dark' ? styles.inputDark : styles.inputLight,
-              ]}
-              placeholder="Rss Feed Url"
-              ref={(element) => inputRef.current[i+1] = element}
-              defaultValue={submittedData[i+1]}
-              value={submittedData[i+1]}
-            />
-          )}
-          name={`feed_url_${i+1}`}
-          rules={{ required: 'You must enter a valid url' }}
-        />
-        <Pressable onPress={() => handleDeleteInput(i+1)} data-inputnum={i+1}>
-          <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
-        </Pressable>
-        {errors.name && <Text style={styles.errorText}>{"errors.name.message"}</Text>}
-      </View>
-    ))
-  }
-  console.log("feedDataStorage", feedDataStorage)
+  //console.log("feedDataStorage", feedDataStorage)
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -131,22 +99,47 @@ const SettingsFormNew = () => {
         ]}>
           Enter RSS feeds for your news:
         </Text>
-        {form}
+
+        <Formik
+          initialValues={formikInitialValues}
+          onSubmit={async (values) => {
+            await new Promise((r) => setTimeout(r, 500));
+            alert(JSON.stringify(values, null, 2));
+          }}
+          validationSchema={validationSchema}
+          //onSubmit={handleFormSubmit}
+        >
+          {({ handleChange, handleSubmit, values, errors }) => (
+            <View>         
+              {inputNum.map((_, i: number) => (
+                <View key={i} style={styles.inputWrapper}>
+                  <TextInput
+                    style={[
+                      theme === 'dark' ? styles.inputDark : styles.inputLight,
+                    ]}
+                    placeholder="RSS Feed URL"
+                    onChangeText={handleChange('rss')}
+                    value={values.rss}
+                  />
+                  {errors.rss && <Text style={styles.error}>{errors.rss}</Text>}
+                  <Pressable onPress={() => handleDeleteInput(i+1)} data-inputnum={i+1}>
+                    <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
+                  </Pressable>
+                </View>
+              ))}
+
+              <Button title="Submit" onPress={e => handleSubmit(e as unknown as FormEvent<HTMLFormElement>)} />
+            </View>
+          )}
+        </Formik>
+
         <Pressable style={[
           theme === 'dark' ? styles.buttonDark : styles.buttonLight,
           ]} onPress={handleAddInput}>
           <Text style={[
           theme === 'dark' ? styles.buttonTextDark : styles.buttonTextLight,
         ]}>Add RSS</Text>
-        </Pressable>
-        <Pressable style={[
-          theme === 'dark' ? styles.buttonSaveDark : styles.buttonSaveLight
-          ]} 
-          onPress={handleSubmit(onSubmit)}>
-            <Text style={[
-              theme === 'dark' ? styles.buttonSaveTextDark : styles.buttonSaveTextLight,
-              ]}>Save Urls</Text>
-        </Pressable>
+        </Pressable>        
       </View>
     </SafeAreaView>
   )
@@ -274,6 +267,10 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: 'bold',
     letterSpacing: 0.25,
+  },
+  error: {
+    color: 'red',
+    marginTop: 8,
   }
 });
 
