@@ -25,7 +25,10 @@ const SettingsFormNew = () => {
 
   // create a validation schema using Yup
   const validationSchema = yup.object().shape({
-    rss: yup.string().url('Enter a valid url').required('Url is required'),
+    // rss: yup.string().url('Enter a valid url').required('Url is required'),
+    rss: yup.array().of(
+      yup.string().url('Enter a valid url').required('Url is required for each Rss Feed'),
+    ),
   });
 
   const formikInitialValues = {
@@ -99,8 +102,48 @@ const SettingsFormNew = () => {
         ]}>
           Enter RSS feeds for your news:
         </Text>
-
         <Formik
+          initialValues={formikInitialValues}
+          onSubmit={(values) => alert(JSON.stringify(values, null, 2))}
+          enableReinitialize>
+          {({ values, handleSubmit, handleChange, errors }) => (
+            <>
+              <FieldArray name="rss">
+                {({ insert, remove, push }) => (
+                  <View>
+                    {values.rss.length > 0 &&
+                      values.rss.map((feed, index) => (
+                        <View key={index} style={styles.inputWrapper}>
+                          <TextInput
+                            style={[
+                              theme === 'dark' ? styles.inputDark : styles.inputLight,
+                            ]}
+                            name={`rss.${index}.url`}
+                            placeholder="RSS Feed Url"
+                            onChangeText={handleChange(
+                              `rss.${index}.url`
+                            )}
+                          />
+                          <Pressable onPress={() => remove(index)}>
+                            <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
+                          </Pressable>
+                        </View>
+                      ))}
+                    <Button
+                      onPress={() => push({ url: '' })}
+                      title="Add RSS Feed"
+                    />
+                  </View>
+                )}
+              </FieldArray>
+              <Button title="Submit" onPress={handleSubmit} />
+
+              <Text>{JSON.stringify(values, null, 2)}</Text>
+            </>
+          )}
+        </Formik>
+
+        {/* <Formik
           initialValues={formikInitialValues}
           onSubmit={async (values) => {
             await new Promise((r) => setTimeout(r, 500));
@@ -131,7 +174,7 @@ const SettingsFormNew = () => {
               <Button title="Submit" onPress={e => handleSubmit(e as unknown as FormEvent<HTMLFormElement>)} />
             </View>
           )}
-        </Formik>
+        </Formik> */}
 
         <Pressable style={[
           theme === 'dark' ? styles.buttonDark : styles.buttonLight,
