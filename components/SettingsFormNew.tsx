@@ -1,16 +1,15 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { 
-  Button,
   Pressable, 
   Text, 
   TextInput, 
   SafeAreaView, 
   StyleSheet, 
   View } from "react-native";
-import { Formik, Field, FieldArray, Form, ErrorMessage } from 'formik';
+import { Formik, FieldArray } from 'formik';
 import * as yup from "yup";
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,9 +24,10 @@ const SettingsFormNew = () => {
 
   // create a validation schema using Yup
   const validationSchema = yup.object().shape({
-    // rss: yup.string().url('Enter a valid url').required('Url is required'),
     rss: yup.array().of(
-      yup.string().url('Enter a valid url').required('Url is required for each Rss Feed'),
+      yup.object().shape({
+        url: yup.string().url('Enter a valid url').required('Url is required for each Rss Feed'),
+      })
     ),
   });
 
@@ -104,7 +104,8 @@ const SettingsFormNew = () => {
         </Text>
         <Formik
           initialValues={formikInitialValues}
-          onSubmit={(values) => alert(JSON.stringify(values, null, 2))}
+          onSubmit={(values) => alert(JSON.stringify(values, null, 2))} 
+          validationSchema={validationSchema}
           enableReinitialize>
           {({ values, handleSubmit, handleChange, errors }) => (
             <>
@@ -127,62 +128,32 @@ const SettingsFormNew = () => {
                           <Pressable onPress={() => remove(index)}>
                             <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
                           </Pressable>
+                          {'rss' in errors && typeof errors.rss !== "undefined" && typeof errors.rss[index] !== "undefined" && feed.url !== "" && <Text style={styles.error}>{errors.rss[index].url}</Text>}
                         </View>
                       ))}
-                    <Button
-                      onPress={() => push({ url: '' })}
-                      title="Add RSS Feed"
-                    />
+                    <Pressable style={[
+                      theme === 'dark' ? styles.buttonDark : styles.buttonLight,
+                      ]} onPress={() => push({ url: '' })}>
+                      <Text style={[
+                        theme === 'dark' ? styles.buttonTextDark : styles.buttonTextLight,
+                        ]}>Add RSS Feed</Text>
+                    </Pressable>  
                   </View>
                 )}
               </FieldArray>
-              <Button title="Submit" onPress={handleSubmit} />
+              <Pressable style={[
+                  theme === 'dark' ? styles.buttonSaveDark : styles.buttonSaveLight,
+                ]} onPress={handleSubmit}>
+                <Text style={[
+                    theme === 'dark' ? styles.buttonTextLight : styles.buttonTextDark,
+                  ]}>Save Rss Feeds
+                </Text>
+              </Pressable>  
 
               <Text>{JSON.stringify(values, null, 2)}</Text>
             </>
           )}
-        </Formik>
-
-        {/* <Formik
-          initialValues={formikInitialValues}
-          onSubmit={async (values) => {
-            await new Promise((r) => setTimeout(r, 500));
-            alert(JSON.stringify(values, null, 2));
-          }}
-          validationSchema={validationSchema}
-          //onSubmit={handleFormSubmit}
-        >
-          {({ handleChange, handleSubmit, values, errors }) => (
-            <View>         
-              {inputNum.map((_, i: number) => (
-                <View key={i} style={styles.inputWrapper}>
-                  <TextInput
-                    style={[
-                      theme === 'dark' ? styles.inputDark : styles.inputLight,
-                    ]}
-                    placeholder="RSS Feed URL"
-                    onChangeText={handleChange('rss')}
-                    value={values.rss}
-                  />
-                  {errors.rss && <Text style={styles.error}>{errors.rss}</Text>}
-                  <Pressable onPress={() => handleDeleteInput(i+1)} data-inputnum={i+1}>
-                    <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />
-                  </Pressable>
-                </View>
-              ))}
-
-              <Button title="Submit" onPress={e => handleSubmit(e as unknown as FormEvent<HTMLFormElement>)} />
-            </View>
-          )}
-        </Formik> */}
-
-        <Pressable style={[
-          theme === 'dark' ? styles.buttonDark : styles.buttonLight,
-          ]} onPress={handleAddInput}>
-          <Text style={[
-          theme === 'dark' ? styles.buttonTextDark : styles.buttonTextLight,
-        ]}>Add RSS</Text>
-        </Pressable>        
+        </Formik>     
       </View>
     </SafeAreaView>
   )
