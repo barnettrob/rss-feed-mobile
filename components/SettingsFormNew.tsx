@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { 
+import {
   Pressable, 
   Text, 
   TextInput, 
@@ -38,36 +38,14 @@ const SettingsFormNew = () => {
       },
     ],
   };
-  
-
-  const handleFormSubmit = (values: any) => {
-    // Handle form submission logic here
-    alert(JSON.stringify(values));
-  };
-
-
-  const handleAddInput = () => {
-    setInputNum(inputNum => [...inputNum, inputNum.length + 1]);
-  }
-
-  const handleDeleteInput = (i: number) => {
-    console.log("i", i)
-    setInputNum(origInput => {
-      return origInput.filter(input => input !== i);
-    })
-  } 
-
-  const onSubmit = async (data: any) => {
-    // Simulate form submission
-    await saveFeedData(data);
-  };
 
   const saveFeedData = async (rssFeeds: any) => {
     try {
       const jsonValue = JSON.stringify(rssFeeds);
-      await AsyncStorage.setItem("rssFeeds", jsonValue);
-      setFeedDataStorage(rssFeeds);
-      alert("Feeds Saved!")
+      await AsyncStorage.setItem("rss-feeds", jsonValue);
+      setFeedDataStorage(jsonValue);
+      
+      alert(jsonValue);
     } catch (e) {
       alert("There was a problem saving your RSS Feeds");
     }
@@ -75,25 +53,45 @@ const SettingsFormNew = () => {
 
   const getFeedData = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem("rssFeeds");
+      const jsonValue = await AsyncStorage.getItem('rss-feeds');
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
       // error reading value
     }
+    // try {
+    //   const jsonValue = await AsyncStorage.getItem("rss-feeds");
+    //   return jsonValue != null ? JSON.parse(jsonValue) : null;
+    // } catch (e) {
+    //   // error reading value
+    // }
   };
 
   useEffect(() => {
-    (async () => {
+    const fetchFeedData = async () => {
       // Set Feed urls to state.
       await getFeedData().then((result) => {
+        alert(JSON.stringify(result));
         if (result !== null) {
           setFeedDataStorage(result);
         }
       });
-    })
+    }
+    // Run fetch data function.
+    fetchFeedData()
+    .catch((error) => console.log(error));
+
   }, []);
 
-  //console.log("feedDataStorage", feedDataStorage)
+  // {
+  //   "rss": [
+  //     {
+  //       "url": "https://truthout.org/latest/feed"
+  //     }
+  //   ]
+  // }
+
+  //alert(JSON.stringify(feedDataStorage))
+
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -103,8 +101,13 @@ const SettingsFormNew = () => {
           Enter RSS feeds for your news:
         </Text>
         <Formik
-          initialValues={formikInitialValues}
-          onSubmit={(values) => alert(JSON.stringify(values, null, 2))} 
+          initialValues={
+            typeof feedDataStorage === "object" && 
+            Object.keys(feedDataStorage).length > 0 ?
+            feedDataStorage :
+            formikInitialValues
+          }
+          onSubmit={(values) => saveFeedData(values)} 
           validationSchema={validationSchema}
           enableReinitialize>
           {({ values, handleSubmit, handleChange, errors }) => (
@@ -124,6 +127,12 @@ const SettingsFormNew = () => {
                             onChangeText={handleChange(
                               `rss.${index}.url`
                             )}
+                            defaultValue={
+                              typeof feedDataStorage === "object" &&
+                              "rss" in feedDataStorage && 
+                              Array.isArray(feedDataStorage.rss) && feedDataStorage.rss.length > 0 && 
+                              typeof feedDataStorage.rss[index] === "object" &&
+                              "url" in feedDataStorage.rss[index] ? feedDataStorage.rss[index].url : ""}
                           />
                           <Pressable onPress={() => remove(index)}>
                             <AntDesign name="delete" size={24} color={theme === 'dark' ? "white" : "black"} />

@@ -68,8 +68,8 @@ class Rss extends Component {
 
   getFeedData = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem("rssFeeds");
-
+      const jsonValue = await AsyncStorage.getItem("rss-feeds");
+      alert(jsonValue)
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
       // error reading value
