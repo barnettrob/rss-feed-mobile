@@ -5,7 +5,7 @@ import {
   RefreshControl,
 } from "react-native";
 import Header from "@/components/Header";
-import Rss from "@/components/Rss";
+import RssNew from "@/components/RssNew";
 
 export default function Index() {
   const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +25,7 @@ export default function Index() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <Rss />
+        <RssNew />
       </ScrollView>
     </SafeAreaView>
   );

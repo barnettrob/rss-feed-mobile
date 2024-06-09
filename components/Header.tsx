@@ -1,5 +1,4 @@
 import { StyleSheet, View, Text } from "react-native";
-import Settings from "./Settings";
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 const Header = () => {
@@ -10,9 +9,6 @@ const Header = () => {
         ]}>
           <View style={styles.containerLeft}>
             <Text style={styles.title}>News</Text>
-          </View>
-          <View style={styles.containerRight}>
-            <Settings />
           </View>
         </View>
       );
