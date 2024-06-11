@@ -31,6 +31,12 @@ class Rss extends Component {
         this.setState({ savedFeeds: result });
         const rssFeeds = this.state.savedFeeds;
         for (let feed in rssFeeds) {
+          /*
+          [{
+            'url': 'https://truthout.org/latest/feed'
+          }]
+          */
+          //alert(JSON.stringify(rssFeeds[feed]))
           this.fetchFeed(rssFeeds[feed]).then((data) => {
             if (rssFeeds[Object.keys(rssFeeds)[0]] == rssFeeds[feed]) {
               this.setState({
@@ -68,8 +74,8 @@ class Rss extends Component {
 
   getFeedData = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem("rss-feeds");
-      alert(jsonValue)
+      const jsonValue = await AsyncStorage.getItem("rssFeeds");
+      //alert(jsonValue)
       return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
       // error reading value
@@ -118,6 +124,7 @@ class Rss extends Component {
       .then((result) => result.text())
       .then((data) => {
         const feedData = parser.parse(data);
+
         return feedData.rss.channel["item"];
       })
       .then(function (d) {

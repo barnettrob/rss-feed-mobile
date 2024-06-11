@@ -158,8 +158,6 @@ const SettingsFormNew = () => {
                   ]}>Save Rss Feeds
                 </Text>
               </Pressable>  
-
-              <Text>{JSON.stringify(values, null, 2)}</Text>
             </>
           )}
         </Formik>     

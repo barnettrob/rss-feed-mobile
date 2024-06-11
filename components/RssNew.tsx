@@ -3,12 +3,8 @@ import { StyleSheet, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { XMLParser } from "fast-xml-parser";
 
-interface Feed {
-  url: string;
-}
-
 const RssNew = () => {
-  const [feed, setFeed] = useState<Array<Feed>>([]);
+  const [feed, setFeed] = useState({});
 
   useEffect(() => {
     getFeedData();
@@ -19,8 +15,15 @@ const RssNew = () => {
       const jsonValue = await AsyncStorage.getItem("rss-feeds");
       const jsonObject = jsonValue != null ? JSON.parse(jsonValue) : null;
       if (typeof jsonObject === "object" && 'rss' in jsonObject) {
-        setFeed(jsonObject.rss);
-        
+        if (Array.isArray(jsonObject.rss)) {
+          jsonObject.rss.map((feed: any, index: number) => {
+            const url = 'url' in feed ? feed.url : '';
+            fetchFeed(url)?.then((data: any) => {
+              feed[index] = data
+              setFeed({...feed})
+            })
+          })
+        }
       }
       return jsonObject;
     } catch (e) {
@@ -28,13 +31,17 @@ const RssNew = () => {
     }
   };
 
-  const fetchFeed = (rss: any) => {
+  const fetchFeed = (rss: string) => {
+    if (rss === "") {
+      return;
+    }
     const parser = new XMLParser();
 
     const url = fetch(rss)
       .then((result) => result.text())
       .then((data) => {
         const feedData = parser.parse(data);
+
         return feedData.rss.channel["item"];
       })
       .then(function (d) {
@@ -44,7 +51,10 @@ const RssNew = () => {
     return url;
   }
 
-  alert(JSON.stringify(feed))
+
+  if (typeof feed === "object" && Object.keys(feed).length > 0) {
+    alert(JSON.stringify(feed));
+  }
 
   return (
     <Text>RssNew</Text>
