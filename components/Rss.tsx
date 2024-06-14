@@ -124,7 +124,7 @@ class Rss extends Component {
       .then((result) => result.text())
       .then((data) => {
         const feedData = parser.parse(data);
-
+        //alert(JSON.stringify(feedData))
         return feedData.rss.channel["item"];
       })
       .then(function (d) {
