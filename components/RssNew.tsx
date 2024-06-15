@@ -2,6 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { XMLParser } from "fast-xml-parser";
+import { decode } from 'html-entities';
 
 const RssNew = () => {
   const [feed, setFeed] = useState({});
@@ -120,22 +121,31 @@ const RssNew = () => {
   }
 
   let rssFeed = <></>
-  let feedsCombined = [];
+  let feedsCombined: any[] = [];
+  
   if (typeof feed === "object" && Object.keys(feed).length > 0) {
-    //alert(JSON.stringify(feed));
     // Combine the feeds into one array.
-    
+    // for (let i = 0; i < Object.keys(feed).length; i++) {
+    //   if (typeof feed[i] !== "undefined") {
+    //     feeds[i] = feed[i];
+    //     //feedsCombined.push(...feeds[i]);
+    //   //alert(JSON.stringify(feed[i]))
+    //   }
+    // }
+    //alert(JSON.stringify(feed))
+    let i = 0;
     for (const rss in feed) {
       //alert(JSON.stringify(feed[rss]))
+      const iString = i.toString();
+      //alert(iString)
+      //alert(JSON.stringify(feed[rss][iString]))
       feedsCombined.push(...feed[rss]);
+      //feedsCombined.push(...[feed[rss][iString]]);
+      i++;
     }
     //feedsCombined.push(...feed1, ...feed2, ...feed3, ...feed4, ...feed5);
-    //alert(JSON.stringify(feedsCombined))
   }
 
-      // Sort by pubDate.
-      // feedsCombined = feedsCombined.sort(this.pubDateSort);
-    
       // Check if feeds array is empty and show message if it is.
       if (feedsCombined === undefined || feedsCombined.length === 0) {
         return (
@@ -154,33 +164,31 @@ const RssNew = () => {
    
       let newsItems: any = [];
       if (feedsCombined.length > 0) {
-        feedsCombined.map((el, index) => {
-          alert(JSON.stringify(el.title))
-          const title = 'title' in el ? el.title : '';
-          const link = 'link' in el ? el.link : '';;
-          const pubDate = 'pubDate' in el && el.pubDate !== "undefined" ? el.pubDate.split(" ") : [];
-          alert(link)
+        feedsCombined
+        .map((el, index) => {
+          if (typeof el === "object") {
+            const pubDateArray = 'pubDate' in el && typeof el.pubDate !== "undefined" ? el.pubDate.split(" ") : [];
+
+            if (
+              `${pubDateArray[0]} ${pubDateArray[1]} ${pubDateArray[2]} ${pubDateArray[3]}` ===
+              todayFormatted
+            ) {
+              const date = new Date(el.pubDate);
+              const localDate = formatDate(date.toString());
+      
+              newsItems.push({
+                pubDate: localDate.replace(" GMT-0400", ""),
+                link: el.link,
+                title: el.title,
+              });
+            }
+          }
         })
       }
-      // feedsCombined.forEach((el, key) => {
-        // const pubDateArray = el.pubDate !== "undefined" ? el.pubDate.split(" ") : [];
-  
-        // if (
-        //   `${pubDateArray[0]} ${pubDateArray[1]} ${pubDateArray[2]} ${pubDateArray[3]}` ===
-        //   todayFormatted
-        // ) {
-        //   const date = new Date(el.pubDate);
-        //   const localDate = formatDate(date.toString());
-  
-        //   newsItems.push({
-        //     pubDate: localDate.replace(" GMT-0400 (EDT)", ""),
-        //     link: el.link,
-        //     title: el.title,
-        //   });
-        // }
-      // });
 
-      return newsItems.map(function (item: any, i: number) {
+      return newsItems
+      .sort((a: any, b: any) => a.pubDate > b.pubDate ? 1 : -1)
+      .map(function (item: any, i: number) {
         let url = item.link;
         url = url.replace("https://", "");
         url = url.replace("http://", "");
