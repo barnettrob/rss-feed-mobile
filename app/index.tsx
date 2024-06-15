@@ -26,7 +26,6 @@ export default function Index() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* <Rss /> */}
         <RssNew />
       </ScrollView>
     </SafeAreaView>

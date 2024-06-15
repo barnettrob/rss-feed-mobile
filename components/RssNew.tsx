@@ -6,6 +6,7 @@ import { decode } from 'html-entities';
 
 const RssNew = () => {
   const [feed, setFeed] = useState({});
+  const [combinedFeed, setCombinedFeed] = useState([]);
 
   useEffect(() => {
     getFeedData();
@@ -120,97 +121,84 @@ const RssNew = () => {
     return comparison * -1;
   }
 
-  let rssFeed = <></>
   let feedsCombined: any[] = [];
   
   if (typeof feed === "object" && Object.keys(feed).length > 0) {
-    // Combine the feeds into one array.
-    // for (let i = 0; i < Object.keys(feed).length; i++) {
-    //   if (typeof feed[i] !== "undefined") {
-    //     feeds[i] = feed[i];
-    //     //feedsCombined.push(...feeds[i]);
-    //   //alert(JSON.stringify(feed[i]))
-    //   }
-    // }
-    //alert(JSON.stringify(feed))
     let i = 0;
     for (const rss in feed) {
-      //alert(JSON.stringify(feed[rss]))
       const iString = i.toString();
-      //alert(iString)
-      //alert(JSON.stringify(feed[rss][iString]))
       feedsCombined.push(...feed[rss]);
-      //feedsCombined.push(...[feed[rss][iString]]);
       i++;
     }
-    //feedsCombined.push(...feed1, ...feed2, ...feed3, ...feed4, ...feed5);
   }
 
-      // Check if feeds array is empty and show message if it is.
-      if (feedsCombined === undefined || feedsCombined.length === 0) {
-        return (
-          <Text style={styles.empty}>Add rss feeds to Config or scroll up to refresh list.</Text>
-        )
-      }
+  // Check if feeds array is empty and show message if it is.
+  if (feedsCombined === undefined || feedsCombined.length === 0) {
+    return (
+      <Text style={styles.empty}>Add rss feeds to Config or scroll up to refresh list.</Text>
+    )
+  }
 
-      let today = new Date();
-    // Get 01 - 09 for dates between those dates instead of 1 - 9.
-    // This will match 2 digit format we get back from rss feeds.
-    const day = ('0' + today.getDate()).slice(-2);
-    const year = today.getFullYear();
-    const todayFormatted = `${todayDayShort(
-      today
-    )}, ${day} ${todayMonthShort(today)} ${year}`;
+  let today = new Date();
+  // Get 01 - 09 for dates between those dates instead of 1 - 9.
+  // This will match 2 digit format we get back from rss feeds.
+  const day = ('0' + today.getDate()).slice(-2);
+  const year = today.getFullYear();
+  const todayFormatted = `${todayDayShort(
+    today
+  )}, ${day} ${todayMonthShort(today)} ${year}`;
    
-      let newsItems: any = [];
-      if (feedsCombined.length > 0) {
-        feedsCombined
-        .map((el, index) => {
-          if (typeof el === "object") {
-            const pubDateArray = 'pubDate' in el && typeof el.pubDate !== "undefined" ? el.pubDate.split(" ") : [];
+  let newsItems: any = [];
+  if (feedsCombined.length > 0) {
+    feedsCombined
+    .map((el, index) => {
+      if (typeof el === "object") {
+        const pubDateArray = 'pubDate' in el && typeof el.pubDate !== "undefined" ? el.pubDate.split(" ") : [];
 
-            if (
-              `${pubDateArray[0]} ${pubDateArray[1]} ${pubDateArray[2]} ${pubDateArray[3]}` ===
-              todayFormatted
-            ) {
-              const date = new Date(el.pubDate);
-              const localDate = formatDate(date.toString());
-      
-              newsItems.push({
-                pubDate: localDate.replace(" GMT-0400", ""),
-                link: el.link,
-                title: el.title,
-              });
-            }
-          }
-        })
-      }
-
-      return newsItems
-      .sort((a: any, b: any) => a.pubDate > b.pubDate ? 1 : -1)
-      .map(function (item: any, i: number) {
-        let url = item.link;
-        url = url.replace("https://", "");
-        url = url.replace("http://", "");
-        url = url.split("/");
-        const domain = url[0];
+        if (
+          `${pubDateArray[0]} ${pubDateArray[1]} ${pubDateArray[2]} ${pubDateArray[3]}` ===
+          todayFormatted
+        ) {
+          const date = new Date(el.pubDate);
+          const localDate = formatDate(date.toString());
   
-        return (
-          <TouchableOpacity
-            activeOpacity={0.6}
-            onPress={() => {
-              Linking.openURL(item.link);
-            }}
-            key={i}
-          >
-            <View key={i} style={styles.cardDark}>
-              <Text style={styles.eyebrow}>{domain}</Text>
-              <Text style={styles.title}>{decode(item.title)}</Text>
-              <Text style={styles.date}>{item.pubDate}</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      });
+          newsItems.push({
+            pubDate: localDate.replace(" GMT-0400", ""),
+            link: el.link,
+            title: el.title,
+          });
+        }
+      }
+    })
+  }
+
+  //setCombinedFeed(prevStateArray => [...prevStateArray, newsItems]);
+
+  return newsItems
+  .sort((a: any, b: any) => a.pubDate > b.pubDate ? 1 : -1)
+  .map(function (item: any, i: number) {
+    let url = item.link;
+    url = url.replace("https://", "");
+    url = url.replace("http://", "");
+    url = url.split("/");
+    const domain = url[0];
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.6}
+        onPress={() => {
+          Linking.openURL(item.link);
+        }}
+        key={i}
+      >
+        <View key={i} style={styles.cardDark}>
+          <Text style={styles.eyebrow}>{domain}</Text>
+          <Text style={styles.title}>{decode(item.title)}</Text>
+          <Text style={styles.date}>{item.pubDate}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  });
 }
 
 const styles = StyleSheet.create({

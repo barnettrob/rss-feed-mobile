@@ -58,12 +58,6 @@ const SettingsFormNew = () => {
     } catch (e) {
       // error reading value
     }
-    // try {
-    //   const jsonValue = await AsyncStorage.getItem("rss-feeds");
-    //   return jsonValue != null ? JSON.parse(jsonValue) : null;
-    // } catch (e) {
-    //   // error reading value
-    // }
   };
 
   useEffect(() => {
@@ -81,16 +75,6 @@ const SettingsFormNew = () => {
     .catch((error) => console.log(error));
 
   }, []);
-
-  // {
-  //   "rss": [
-  //     {
-  //       "url": "https://truthout.org/latest/feed"
-  //     }
-  //   ]
-  // }
-
-  //alert(JSON.stringify(feedDataStorage))
 
   return (
     <SafeAreaView>
